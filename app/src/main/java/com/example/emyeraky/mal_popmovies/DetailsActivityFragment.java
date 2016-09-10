@@ -105,7 +105,7 @@ public class DetailsActivityFragment extends Fragment {
             }
 
             title.setText(movieData.getOriginal_title());
-            rate.setText(movieData.getPopularity());
+            rate.setText(movieData.getvote_average());
 
             String baseUrl = "http://image.tmdb.org/t/p/w185";
             poster_url = baseUrl + movieData.getPoster_path();

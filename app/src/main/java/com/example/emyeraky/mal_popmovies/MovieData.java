@@ -9,7 +9,7 @@ public class MovieData {
     private String poster_path ;
     private String time ;
     private String original_title ;
-    private String popularity ;
+    private String vote_average ;
     private String date;
 
     public void setID(String ID) {
@@ -27,8 +27,8 @@ public class MovieData {
         this.original_title = original_title;
     }
 
-    public void setPopularity(String popularity) {
-        this.popularity = popularity;
+    public void setvote_average(String vote_average) {
+        this.vote_average = vote_average;
     }
 
     public void setDate(String date) {
@@ -50,8 +50,8 @@ public class MovieData {
         return original_title;
     }
 
-    public String getPopularity() {
-        return popularity;
+    public String getvote_average() {
+        return vote_average;
     }
 
     public String getDate() {

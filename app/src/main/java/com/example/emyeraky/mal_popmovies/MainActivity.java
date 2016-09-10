@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
     DBController dbController;
     static Context context;
     Intent ii;
+    static String state ="";
     ArrayList<MovieData> movieDataList;
 
     @Override
@@ -65,8 +66,25 @@ public class MainActivity extends AppCompatActivity {
        //check Internet connected
         if (isNetworkConnected()) {
             // notify user you are online
-            FetchImage fetchImage = new FetchImage();
-            fetchImage.execute("popular?");
+            if(state.equals("popular")){
+                FetchImage fetchImage = new FetchImage();
+                fetchImage.execute("popular?");
+                state = "popular";
+            }
+            else if(state.equals("top_rated")){
+                FetchImage fetchImage = new FetchImage();
+                fetchImage.execute("top_rated?");
+                state = "top_rated";
+            }
+            else if(state.equals("favorite")){
+                favorit();
+                state = "favorite";
+            }else {
+                FetchImage fetchImage = new FetchImage();
+                fetchImage.execute("popular?");
+                state = "popular";
+            }
+
         } else {
             Toast.makeText(getBaseContext(), "No Internet connected!!", Toast.LENGTH_SHORT).show();
         }
@@ -102,8 +120,28 @@ public class MainActivity extends AppCompatActivity {
             //check Internet connected
             if (isNetworkConnected()) {
                 // notify user you are online
-                FetchImage fetchImage = new FetchImage();
-                fetchImage.execute("popular?");
+                if(state.equals("popular")){
+                    FetchImage fetchImage = new FetchImage();
+                    fetchImage.execute("popular?");
+                    state = "popular";
+                    Toast.makeText(MainActivity.this, "popular", Toast.LENGTH_SHORT).show();
+                }
+                else if(state.equals("top_rated")){
+                    FetchImage fetchImage = new FetchImage();
+                    fetchImage.execute("top_rated?");
+                    state = "top_rated";
+                    Toast.makeText(MainActivity.this, "top_rated", Toast.LENGTH_SHORT).show();
+                }
+                else if(state.equals("favorite")){
+                    favorit();
+                    state = "favorite";
+                    Toast.makeText(MainActivity.this, "favorite", Toast.LENGTH_SHORT).show();
+                }else {
+                    FetchImage fetchImage = new FetchImage();
+                    fetchImage.execute("popular?");
+                    state = "popular";
+                    Toast.makeText(MainActivity.this, "popular", Toast.LENGTH_SHORT).show();
+                }
             } else {
                 Toast.makeText(getBaseContext(), "No Internet connected!!", Toast.LENGTH_SHORT).show();
             }
@@ -134,64 +172,74 @@ public class MainActivity extends AppCompatActivity {
             if(id==R.id.popular_settings&&isNetworkConnected()){
                 FetchImage fetchImage =new FetchImage();
                 fetchImage.execute("popular?");
+                state = "popular";
+                Toast.makeText(MainActivity.this, "popular", Toast.LENGTH_SHORT).show();
             }
             else if(id==R.id.toprated_settings&&isNetworkConnected()){
                 FetchImage fetchImage = new FetchImage();
                 fetchImage.execute("top_rated?");
+                state = "top_rated";
+                Toast.makeText(MainActivity.this, "top_rated", Toast.LENGTH_SHORT).show();
             }
 
             //return favorite from DB
             else {
                 if (isNetworkConnected()) {
-                    movieDataList = new ArrayList<>();
-                    MovieData movie;
-
-                    dbController = new DBController(this);
-                    dbController.open();
-                    try {
-                        Cursor cursor = dbController.get_dataselect();
-                        if (cursor.moveToFirst()) {
-                            do {
-                                movie = new MovieData();
-                                movie.setID(cursor.getString(0));
-                                movie.setOriginal_title(cursor.getString(1));
-                                movie.setTime(cursor.getString(2));
-                                movie.setDate(cursor.getString(3));
-                                movie.setPoster_path(cursor.getString(4));
-                                movie.setPopularity(cursor.getString(5));
-
-                                movieDataList.add(movie);
-                            } while (cursor.moveToNext());
-                            String[] poster = new String[movieDataList.size()];
-
-                            for (int i = 0; i < poster.length; i++) {
-                                poster[i] = movieDataList.get(i).getPoster_path();
-                            }
-                            //set image in grid to display
-                            CustomImage customImage = new CustomImage(getBaseContext(), poster);
-                            gridView.setAdapter(customImage);
-                            movieData = new MovieData[movieDataList.size()];
-                            for (int i=0;i<movieDataList.size();i++){
-                                movieData[i]= movieDataList.get(i);
-                            }
-                            gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                @Override
-                                public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                                    actionLand(flag, position);
-                                }
-                            });
-
-                        }
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    dbController.close_db();
+                  favorit();
+                    state = "favorite";
+                    Toast.makeText(MainActivity.this, "favorite", Toast.LENGTH_SHORT).show();
                 } else
                     Toast.makeText(MainActivity.this, "No Internet Connected", Toast.LENGTH_SHORT).show();
             }
             return super.onOptionsItemSelected(item);
         }
+
+    public void favorit(){
+        movieDataList = new ArrayList<>();
+        MovieData movie;
+
+        dbController = new DBController(this);
+        dbController.open();
+        try {
+            Cursor cursor = dbController.get_dataselect();
+            if (cursor.moveToFirst()) {
+                do {
+                    movie = new MovieData();
+                    movie.setID(cursor.getString(0));
+                    movie.setOriginal_title(cursor.getString(1));
+                    movie.setTime(cursor.getString(2));
+                    movie.setDate(cursor.getString(3));
+                    movie.setPoster_path(cursor.getString(4));
+                    movie.setvote_average(cursor.getString(5));
+
+                    movieDataList.add(movie);
+                } while (cursor.moveToNext());
+                String[] poster = new String[movieDataList.size()];
+
+                for (int i = 0; i < poster.length; i++) {
+                    poster[i] = movieDataList.get(i).getPoster_path();
+                }
+                //set image in grid to display
+                CustomImage customImage = new CustomImage(getBaseContext(), poster);
+                gridView.setAdapter(customImage);
+                movieData = new MovieData[movieDataList.size()];
+                for (int i=0;i<movieDataList.size();i++){
+                    movieData[i]= movieDataList.get(i);
+                }
+                gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                        actionLand(flag, position);
+                    }
+                });
+
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        dbController.close_db();
+    }
 
 
     //get data from Json
@@ -200,7 +248,7 @@ public class MainActivity extends AppCompatActivity {
         final String id = "id";
         final String poster_path = "poster_path";
         final String original_title = "original_title";
-        final String popularity = "popularity";
+        final String vote_average = "vote_average";
 
         JSONObject imageJson = new JSONObject(imageJsonStr);
         JSONArray imageArray =  imageJson.getJSONArray("results");
@@ -215,7 +263,7 @@ public class MainActivity extends AppCompatActivity {
             movieData[i].setID(image.getString(id));
             movieData[i].setPoster_path(image.getString(poster_path));
             movieData[i].setOriginal_title(image.getString(original_title));
-            movieData[i].setPopularity(image.getString(popularity));
+            movieData[i].setvote_average(image.getString(vote_average));
         }
 
         return movieData;
